@@ -16,160 +16,72 @@
       padding: 48px 16px;
     }
 
-    .container {
-      width: 100%;
-      max-width: 420px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center; }
 
     h1 { font-size: 28px; font-weight: 800; color: #000; margin-bottom: 4px; }
     .subtitle { font-size: 14px; color: #666; margin-bottom: 24px; }
 
     /* ── Toggle ── */
-    .toggle-row {
-      display: flex;
-      background: #e8e8e8;
-      border-radius: 10px;
-      padding: 3px;
-      margin-bottom: 24px;
-      width: 100%;
-    }
-    .toggle-btn {
-      flex: 1;
-      padding: 8px 0;
-      border-radius: 8px;
-      border: none;
-      background: transparent;
-      font-size: 14px;
-      font-weight: 600;
-      color: #888;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s, box-shadow 0.15s;
-    }
-    .toggle-btn.active {
-      background: #fff;
-      color: #000;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
-    }
+    .toggle-row { display: flex; background: #e8e8e8; border-radius: 10px; padding: 3px; margin-bottom: 24px; width: 100%; }
+    .toggle-btn { flex: 1; padding: 8px 0; border-radius: 8px; border: none; background: transparent; font-size: 14px; font-weight: 600; color: #888; cursor: pointer; transition: background 0.15s, color 0.15s, box-shadow 0.15s; }
+    .toggle-btn.active { background: #fff; color: #000; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
 
     /* ── Card ── */
-    .card {
-      width: 100%;
-      background: #fff;
-      border-radius: 16px;
-      padding: 0 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    }
+    .card { width: 100%; background: #fff; border-radius: 16px; padding: 0 16px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
 
     /* ── Field row & autocomplete wrapper ── */
     .field-wrap { position: relative; }
-
-    .field-row {
-      display: flex;
-      align-items: center;
-      padding: 12px 0;
-    }
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 12px;
-      flex-shrink: 0;
-    }
+    .field-row { display: flex; align-items: center; padding: 12px 0; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 12px; flex-shrink: 0; }
     .divider { height: 1px; background: #f0f0f0; margin-left: 22px; }
 
-    input[type="text"] {
-      flex: 1;
-      border: none;
-      outline: none;
-      font-size: 15px;
-      color: #111;
-      background: transparent;
-      font-family: inherit;
-      min-width: 0;
-    }
+    input[type="text"] { flex: 1; border: none; outline: none; font-size: 15px; color: #111; background: transparent; font-family: inherit; min-width: 0; }
     input[type="text"]::placeholder { color: #aaa; }
 
     /* ── Autocomplete dropdown ── */
-    .ac-dropdown {
-      position: absolute;
-      top: calc(100% + 4px);
-      left: -16px;          /* align with card edge */
-      right: -16px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.14);
-      z-index: 999;
-      overflow: hidden;
-      display: none;
-    }
+    .ac-dropdown { position: absolute; top: calc(100% + 4px); left: -16px; right: -16px; background: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.14); z-index: 999; overflow: hidden; display: none; }
     .ac-dropdown.open { display: block; }
-
-    .ac-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      cursor: pointer;
-      transition: background 0.1s;
-    }
-    .ac-item:hover,
-    .ac-item.highlighted { background: #f5f5f5; }
-
-    .ac-pin {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #e8e8e8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
+    .ac-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; transition: background 0.1s; }
+    .ac-item:hover, .ac-item.highlighted { background: #f5f5f5; }
+    .ac-pin { width: 32px; height: 32px; border-radius: 50%; background: #e8e8e8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .ac-pin svg { width: 14px; height: 14px; fill: #555; }
-
     .ac-text { display: flex; flex-direction: column; min-width: 0; }
-    .ac-main {
-      font-size: 14px;
-      font-weight: 600;
-      color: #000;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .ac-sub {
-      font-size: 12px;
-      color: #888;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-top: 1px;
-    }
+    .ac-main { font-size: 14px; font-weight: 600; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ac-sub { font-size: 12px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
     .ac-divider { height: 1px; background: #f0f0f0; margin: 0 16px; }
 
     /* ── Buttons ── */
-    .btn {
-      width: 100%;
-      padding: 16px;
-      border-radius: 12px;
-      border: none;
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-      color: #fff;
-      background: #000;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      transition: opacity 0.15s;
-    }
+    .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-size: 17px; font-weight: 700; letter-spacing: 0.3px; color: #fff; background: #000; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
     .btn:disabled { background: #555; cursor: not-allowed; }
+
+    /* ── Toast banner ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #222;
+      color: #fff;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 13px;
+      line-height: 1.5;
+      max-width: 360px;
+      width: calc(100% - 32px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .toast.show { opacity: 1; }
+    .toast-title { font-weight: 700; font-size: 14px; margin-bottom: 8px; }
+    .toast-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
+    .toast-addr { color: #ccc; font-size: 12px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .copy-btn { background: #444; border: none; color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+    .copy-btn:hover { background: #555; }
+    .copy-btn.copied { background: #2e7d32; }
+    .toast-close { display: block; text-align: center; margin-top: 12px; color: #888; font-size: 12px; cursor: pointer; }
+    .toast-close:hover { color: #fff; }
 
     /* ── Detour hint ── */
     .detour-hint { font-size: 13px; color: #888; text-align: center; margin-bottom: 16px; line-height: 1.5; }
@@ -187,63 +99,26 @@
     .route-line { width: 1px; height: 20px; background: #ddd; margin: 4px 0 4px 4px; }
     .route-container { margin-bottom: 20px; }
 
-    /* Debug box */
-    .debug-box { width: 100%; background: #f4f4f4; border-radius: 8px; border: 1px solid #e4e4e4; padding: 8px 10px; margin-bottom: 16px; }
-    .debug-title { font-size: 9px; font-weight: 700; color: #bbb; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 5px; }
-    .debug-item { font-size: 11px; color: #999; font-family: monospace; margin-bottom: 2px; }
-
-    /* Time estimates */
-    .time-card {
-      width: 100%;
-      background: #f9f9f9;
-      border: 1px solid #eee;
-      border-radius: 12px;
-      padding: 12px 14px;
-      margin-bottom: 16px;
-    }
-    .time-card-title {
-      font-size: 10px;
-      font-weight: 700;
-      color: #aaa;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 10px;
-    }
-    .time-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 5px 0;
-    }
+    /* ── Time estimates ── */
+    .time-card { width: 100%; background: #f9f9f9; border: 1px solid #eee; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; }
+    .time-card-title { font-size: 10px; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+    .time-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; }
     .time-row + .time-row { border-top: 1px solid #eee; }
     .time-label { font-size: 13px; color: #555; display: flex; align-items: center; gap: 7px; }
     .time-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .time-value { font-size: 14px; font-weight: 700; color: #111; }
     .time-value.muted { color: #aaa; font-weight: 500; font-size: 13px; }
+    .time-value.loading { color: #ccc; font-weight: 400; font-size: 12px; }
 
     /* Full-route button */
-    .full-route-btn {
-      width: 100%;
-      background: #00695C;
-      padding: 16px;
-      border-radius: 12px;
-      border: none;
-      color: #fff;
-      cursor: pointer;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
+    .full-route-btn { width: 100%; background: #00695C; padding: 16px; border-radius: 12px; border: none; color: #fff; cursor: pointer; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.18); display: flex; flex-direction: column; align-items: center; gap: 4px; }
     .full-route-btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .full-route-title-row { display: flex; align-items: center; gap: 7px; }
     .full-route-label { font-size: 15px; font-weight: 700; letter-spacing: 0.2px; }
     .beta-badge { background: rgba(255,255,255,0.22); border-radius: 4px; padding: 2px 5px; font-size: 9px; font-weight: 800; letter-spacing: 0.6px; }
     .full-route-sub { font-size: 12px; color: rgba(255,255,255,0.75); }
 
-    .multi-stop-note { font-size: 11px; color: #999; text-align: center; line-height: 1.5; margin-bottom: 16px; padding: 0 4px; }
+    .mobile-note { font-size: 11px; color: #bbb; text-align: center; line-height: 1.5; margin-bottom: 16px; padding: 0 4px; }
 
     /* Leg separator */
     .leg-separator { display: flex; align-items: center; margin-bottom: 12px; gap: 10px; }
@@ -258,7 +133,6 @@
     .leg-label { font-size: 13px; font-weight: 700; text-align: center; letter-spacing: 0.2px; }
     .leg-desc { font-size: 12px; color: rgba(255,255,255,0.75); text-align: center; }
 
-    /* Re-roll */
     .regen-btn { padding: 10px; background: none; border: none; color: #555; font-size: 14px; font-weight: 500; cursor: pointer; width: 100%; text-align: center; margin-top: 2px; }
     .regen-btn:hover { color: #000; }
 
@@ -327,22 +201,21 @@
     <div id="detour-result" class="card detour-card hidden">
       <p class="detour-title">Your Detour Route</p>
       <div class="route-container" id="route-vis"></div>
-      <div class="debug-box" id="debug-box"></div>
 
-      <!-- Ride time estimates -->
-      <div class="time-card" id="time-card">
+      <!-- Time estimates (always rendered immediately) -->
+      <div class="time-card">
         <p class="time-card-title">Estimated Ride Times</p>
         <div class="time-row">
           <span class="time-label"><span class="time-dot" style="background:#4CAF50"></span>Leg 1 &nbsp;·&nbsp; Start → Stop</span>
-          <span class="time-value" id="time-leg1"><span class="spinner" style="border-color:rgba(0,0,0,0.15);border-top-color:#aaa;width:13px;height:13px;border-width:2px"></span></span>
+          <span class="time-value" id="time-leg1">—</span>
         </div>
         <div class="time-row">
           <span class="time-label"><span class="time-dot" style="background:#FF9800"></span>Leg 2 &nbsp;·&nbsp; Stop → End</span>
-          <span class="time-value" id="time-leg2"><span class="spinner" style="border-color:rgba(0,0,0,0.15);border-top-color:#aaa;width:13px;height:13px;border-width:2px"></span></span>
+          <span class="time-value" id="time-leg2">—</span>
         </div>
         <div class="time-row">
           <span class="time-label"><span class="time-dot" style="background:#9E9E9E"></span>Direct &nbsp;·&nbsp; Start → End</span>
-          <span class="time-value muted" id="time-direct"><span class="spinner" style="border-color:rgba(0,0,0,0.15);border-top-color:#aaa;width:13px;height:13px;border-width:2px"></span></span>
+          <span class="time-value muted" id="time-direct">—</span>
         </div>
       </div>
 
@@ -354,10 +227,7 @@
         <span class="full-route-sub">Origin → Random Stop → Destination</span>
       </button>
 
-      <p class="multi-stop-note">
-        ⚠ Uber may not always prefill multi-stop routes depending on app version / device.
-        If the detour stop is missing, use Leg 1 and Leg 2 below.
-      </p>
+      <p class="mobile-note">Works best on mobile with the Uber app installed.</p>
 
       <div class="leg-separator">
         <div class="leg-separator-line"></div>
@@ -378,9 +248,25 @@
   </div>
 </div>
 
+<!-- Address toast (shown after opening Uber on desktop) -->
+<div class="toast" id="addr-toast">
+  <p class="toast-title">Uber opened — addresses for your ride:</p>
+  <div class="toast-row">
+    <span class="toast-addr" id="toast-from"></span>
+    <button class="copy-btn" onclick="copyToast('from')">Copy</button>
+  </div>
+  <div class="toast-row">
+    <span class="toast-addr" id="toast-to"></span>
+    <button class="copy-btn" onclick="copyToast('to')">Copy</button>
+  </div>
+  <span class="toast-close" onclick="hideToast()">Dismiss</span>
+</div>
+
 <script>
 // ─── State ────────────────────────────────────────────────────────────────────
 let detourResult = null;
+let toastAddresses = { from: '', to: '' };
+let toastTimer = null;
 
 // ─── Mode toggle ──────────────────────────────────────────────────────────────
 function setMode(mode) {
@@ -390,279 +276,189 @@ function setMode(mode) {
   document.getElementById('btn-detour').classList.toggle('active', mode === 'detour');
 }
 
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function showToast(from, to) {
+  toastAddresses = { from, to };
+  document.getElementById('toast-from').textContent = from;
+  document.getElementById('toast-to').textContent = to;
+  // Reset copy buttons
+  document.querySelectorAll('.copy-btn').forEach(b => { b.textContent = 'Copy'; b.classList.remove('copied'); });
+  const toast = document.getElementById('addr-toast');
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, 12000);
+}
+
+function hideToast() {
+  document.getElementById('addr-toast').classList.remove('show');
+}
+
+function copyToast(which) {
+  const text = toastAddresses[which];
+  navigator.clipboard.writeText(text).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+  });
+  const btns = document.querySelectorAll('.copy-btn');
+  const btn = which === 'from' ? btns[0] : btns[1];
+  btn.textContent = 'Copied!'; btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+}
+
 // ─── Autocomplete ─────────────────────────────────────────────────────────────
-const PIN_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
-</svg>`;
+const PIN_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>`;
 
 function debounce(fn, ms) {
-  let timer;
-  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
 }
 
 async function fetchSuggestions(query) {
   if (query.length < 2) return [];
-  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1`;
   try {
-    const res = await fetch(url, { headers: { 'User-Agent': 'UberOpenerApp/1.0' } });
-    if (!res.ok) return [];
-    return await res.json();
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1`, { headers: { 'User-Agent': 'UberOpenerApp/1.0' } });
+    return res.ok ? await res.json() : [];
   } catch { return []; }
 }
 
-function formatSuggestion(item) {
-  // Main: first 1-2 parts (place name / street)
-  const parts = item.display_name.split(',');
-  const main = parts.slice(0, 2).join(',').trim();
-  // Sub: remainder capped at 40 chars
-  const sub  = parts.slice(2).join(',').trim();
-  return { main, sub };
-}
-
 function attachAutocomplete(inputId, dropdownId) {
-  const input    = document.getElementById(inputId);
+  const input = document.getElementById(inputId);
   const dropdown = document.getElementById(dropdownId);
-  let highlighted = -1;
-  let currentItems = [];
+  let highlighted = -1, currentItems = [];
 
-  function closeDropdown() {
-    dropdown.classList.remove('open');
-    dropdown.innerHTML = '';
-    highlighted = -1;
-    currentItems = [];
-  }
+  function close() { dropdown.classList.remove('open'); dropdown.innerHTML = ''; highlighted = -1; currentItems = []; }
 
-  function selectItem(item) {
+  function select(item) {
     const short = item.display_name.split(',').slice(0, 2).join(',').trim();
     input.value = short;
-    // Store geocoded result on the input element for instant use later
-    input._geocoded = {
-      lat: parseFloat(item.lat),
-      lng: parseFloat(item.lon),
-      display_name: item.display_name,
-      short_name: short,
-    };
-    closeDropdown();
+    input._geocoded = { lat: parseFloat(item.lat), lng: parseFloat(item.lon), display_name: item.display_name, short_name: short };
+    close();
   }
 
-  function renderDropdown(items) {
-    currentItems = items;
-    highlighted = -1;
-    dropdown.innerHTML = '';
-
-    if (!items.length) { closeDropdown(); return; }
-
+  function render(items) {
+    currentItems = items; highlighted = -1; dropdown.innerHTML = '';
+    if (!items.length) { close(); return; }
     items.forEach((item, i) => {
-      const { main, sub } = formatSuggestion(item);
-
-      if (i > 0) {
-        const divEl = document.createElement('div');
-        divEl.className = 'ac-divider';
-        dropdown.appendChild(divEl);
-      }
-
+      const parts = item.display_name.split(',');
+      const main = parts.slice(0, 2).join(',').trim();
+      const sub  = parts.slice(2).join(',').trim();
+      if (i > 0) { const d = document.createElement('div'); d.className = 'ac-divider'; dropdown.appendChild(d); }
       const row = document.createElement('div');
       row.className = 'ac-item';
-      row.innerHTML = `
-        <div class="ac-pin">${PIN_SVG}</div>
-        <div class="ac-text">
-          <span class="ac-main">${esc(main)}</span>
-          ${sub ? `<span class="ac-sub">${esc(sub)}</span>` : ''}
-        </div>`;
-
-      // mousedown instead of click to fire before blur
-      row.addEventListener('mousedown', e => { e.preventDefault(); selectItem(item); });
+      row.innerHTML = `<div class="ac-pin">${PIN_SVG}</div><div class="ac-text"><span class="ac-main">${esc(main)}</span>${sub ? `<span class="ac-sub">${esc(sub)}</span>` : ''}</div>`;
+      row.addEventListener('mousedown', e => { e.preventDefault(); select(item); });
       dropdown.appendChild(row);
     });
-
     dropdown.classList.add('open');
   }
 
-  const debouncedSearch = debounce(async (query) => {
-    const items = await fetchSuggestions(query);
-    // Only render if this input is still focused
-    if (document.activeElement === input) renderDropdown(items);
-  }, 300);
+  const search = debounce(async q => { const items = await fetchSuggestions(q); if (document.activeElement === input) render(items); }, 300);
 
-  input.addEventListener('input', () => {
-    input._geocoded = null; // clear cached result when user edits
-    const q = input.value.trim();
-    if (q.length < 2) { closeDropdown(); return; }
-    debouncedSearch(q);
-  });
-
-  input.addEventListener('blur', () => setTimeout(closeDropdown, 150));
-
+  input.addEventListener('input', () => { input._geocoded = null; const q = input.value.trim(); q.length < 2 ? close() : search(q); });
+  input.addEventListener('blur', () => setTimeout(close, 150));
   input.addEventListener('keydown', e => {
     if (!dropdown.classList.contains('open')) return;
     const rows = dropdown.querySelectorAll('.ac-item');
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      highlighted = Math.min(highlighted + 1, rows.length - 1);
-      rows.forEach((r, i) => r.classList.toggle('highlighted', i === highlighted));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      highlighted = Math.max(highlighted - 1, 0);
-      rows.forEach((r, i) => r.classList.toggle('highlighted', i === highlighted));
-    } else if (e.key === 'Enter' && highlighted >= 0) {
-      e.stopPropagation();
-      selectItem(currentItems[highlighted]);
-    } else if (e.key === 'Escape') {
-      closeDropdown();
-    }
+    if (e.key === 'ArrowDown') { e.preventDefault(); highlighted = Math.min(highlighted + 1, rows.length - 1); rows.forEach((r, i) => r.classList.toggle('highlighted', i === highlighted)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); highlighted = Math.max(highlighted - 1, 0); rows.forEach((r, i) => r.classList.toggle('highlighted', i === highlighted)); }
+    else if (e.key === 'Enter' && highlighted >= 0) { e.stopPropagation(); select(currentItems[highlighted]); }
+    else if (e.key === 'Escape') close();
   });
 }
 
-// Attach to all four inputs
-attachAutocomplete('origin',       'ac-origin');
-attachAutocomplete('destination',  'ac-destination');
-attachAutocomplete('detour-origin','ac-detour-origin');
-attachAutocomplete('detour-dest',  'ac-detour-dest');
+attachAutocomplete('origin',        'ac-origin');
+attachAutocomplete('destination',   'ac-destination');
+attachAutocomplete('detour-origin', 'ac-detour-origin');
+attachAutocomplete('detour-dest',   'ac-detour-dest');
 
-// Close all dropdowns on outside click
 document.addEventListener('mousedown', e => {
-  document.querySelectorAll('.ac-dropdown').forEach(d => {
-    if (!d.parentElement.contains(e.target)) {
-      d.classList.remove('open');
-      d.innerHTML = '';
-    }
-  });
+  document.querySelectorAll('.ac-dropdown').forEach(d => { if (!d.parentElement.contains(e.target)) { d.classList.remove('open'); d.innerHTML = ''; } });
 });
 
-// ─── Geocoding (Nominatim) ────────────────────────────────────────────────────
+// ─── Geocoding ────────────────────────────────────────────────────────────────
 async function geocode(address, inputEl) {
-  // Use cached result from autocomplete selection if available
-  if (inputEl && inputEl._geocoded && inputEl._geocoded.short_name === address) {
-    return inputEl._geocoded;
-  }
-  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1&addressdetails=1`;
-  const res = await fetch(url, { headers: { 'User-Agent': 'UberOpenerApp/1.0' } });
+  if (inputEl?._geocoded?.short_name === address) return inputEl._geocoded;
+  const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1&addressdetails=1`, { headers: { 'User-Agent': 'UberOpenerApp/1.0' } });
   if (!res.ok) throw new Error(`Geocoding failed (HTTP ${res.status})`);
   const data = await res.json();
-  if (!data || data.length === 0)
-    throw new Error(`No location found for "${address}".\nTry being more specific.`);
+  if (!data?.length) throw new Error(`No location found for "${address}".\nTry being more specific.`);
   const short_name = data[0].display_name.split(',').slice(0, 2).join(',').trim();
   return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), display_name: data[0].display_name, short_name };
 }
 
 async function reverseGeocode(lat, lng) {
-  const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat.toFixed(6)}&lon=${lng.toFixed(6)}&format=json`;
   try {
-    const res = await fetch(url, { headers: { 'User-Agent': 'UberOpenerApp/1.0' } });
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-    if (data && data.display_name) {
-      const short_name = data.display_name.split(',').slice(0, 2).join(',').trim();
-      return { lat, lng, display_name: data.display_name, short_name };
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat.toFixed(6)}&lon=${lng.toFixed(6)}&format=json`, { headers: { 'User-Agent': 'UberOpenerApp/1.0' } });
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.display_name) {
+        const short_name = data.display_name.split(',').slice(0, 2).join(',').trim();
+        return { lat, lng, display_name: data.display_name, short_name };
+      }
     }
   } catch {}
-  const coordStr = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-  return { lat, lng, display_name: coordStr, short_name: coordStr };
+  const s = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  return { lat, lng, display_name: s, short_name: s };
 }
 
-// ─── Random nearby point ──────────────────────────────────────────────────────
-function midpoint(a, b) {
-  return { lat: (a.lat + b.lat) / 2, lng: (a.lng + b.lng) / 2 };
+// ─── Geometry ─────────────────────────────────────────────────────────────────
+function midpoint(a, b) { return { lat: (a.lat + b.lat) / 2, lng: (a.lng + b.lng) / 2 }; }
+
+function randomNearbyPoint(lat, lng, minM = 1000, maxM = 2000) {
+  const a = Math.random() * 2 * Math.PI, d = minM + Math.random() * (maxM - minM), R = 6371000;
+  return { lat: lat + (d * Math.cos(a) / R) * 180 / Math.PI, lng: lng + (d * Math.sin(a) / (R * Math.cos(lat * Math.PI / 180))) * 180 / Math.PI };
 }
 
-function randomNearbyPoint(lat, lng, minMeters = 1000, maxMeters = 2000) {
-  const angleRad = Math.random() * 2 * Math.PI;
-  const distance = minMeters + Math.random() * (maxMeters - minMeters);
-  const R = 6371000;
-  const dLatRad = (distance * Math.cos(angleRad)) / R;
-  const dLngRad = (distance * Math.sin(angleRad)) / (R * Math.cos((lat * Math.PI) / 180));
-  return { lat: lat + (dLatRad * 180) / Math.PI, lng: lng + (dLngRad * 180) / Math.PI };
-}
-
-// ─── Driving time ─────────────────────────────────────────────────────────────
-
-// Haversine straight-line distance in metres
+// ─── Time estimates ───────────────────────────────────────────────────────────
 function haversineMeters(a, b) {
-  const R = 6371000;
-  const dLat = (b.lat - a.lat) * Math.PI / 180;
-  const dLng = (b.lng - a.lng) * Math.PI / 180;
-  const s = Math.sin(dLat / 2) ** 2 +
-            Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) *
-            Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+  const R = 6371000, dLat = (b.lat - a.lat) * Math.PI / 180, dLng = (b.lng - a.lng) * Math.PI / 180;
+  const s = Math.sin(dLat/2)**2 + Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1-s));
 }
 
-// Estimate driving seconds from straight-line distance (road factor ~1.35, avg 30 km/h city)
-function estimateSeconds(from, to) {
-  const dist = haversineMeters(from, to) * 1.35; // road factor
-  return dist / (30 * 1000 / 3600);              // 30 km/h → m/s
+// Instant estimate: road factor 1.35, average 28 km/h city speed
+function instantEstimateSecs(a, b) { return haversineMeters(a, b) * 1.35 / (28000 / 3600); }
+
+function fmtDuration(secs) {
+  const m = Math.round(secs / 60);
+  if (m < 1) return '< 1 min';
+  if (m < 60) return `${m} min`;
+  const h = Math.floor(m / 60), r = m % 60;
+  return r === 0 ? `${h} hr` : `${h} hr ${r} min`;
 }
 
-async function getDrivingSeconds(from, to) {
-  const url =
-    `https://router.project-osrm.org/route/v1/driving/` +
-    `${from.lng.toFixed(6)},${from.lat.toFixed(6)};${to.lng.toFixed(6)},${to.lat.toFixed(6)}` +
-    `?overview=false`;
+function setTimeEl(id, text, muted = false) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'time-value' + (muted ? ' muted' : '');
+}
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 5000); // 5s timeout
-
+async function fetchOSRM(from, to) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 6000);
   try {
-    const res = await fetch(url, { signal: controller.signal });
-    clearTimeout(timeout);
-    if (!res.ok) throw new Error();
+    const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${from.lng.toFixed(6)},${from.lat.toFixed(6)};${to.lng.toFixed(6)},${to.lat.toFixed(6)}?overview=false`, { signal: ctrl.signal });
+    clearTimeout(t);
     const data = await res.json();
-    if (data.code !== 'Ok') throw new Error();
-    return { seconds: data.routes[0].duration, estimated: false };
-  } catch {
-    clearTimeout(timeout);
-    return { seconds: estimateSeconds(from, to), estimated: true };
-  }
+    if (data.code === 'Ok') return data.routes[0].duration;
+  } catch { clearTimeout(t); }
+  return null; // null = OSRM failed, caller uses estimate
 }
 
-function formatDuration(seconds) {
-  const mins = Math.round(seconds / 60);
-  if (mins < 1) return '< 1 min';
-  if (mins < 60) return `${mins} min`;
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
-}
+async function renderTimes(pickup, stop, dropoff) {
+  // Show instant estimates immediately
+  setTimeEl('time-leg1',   `~${fmtDuration(instantEstimateSecs(pickup, stop))}`);
+  setTimeEl('time-leg2',   `~${fmtDuration(instantEstimateSecs(stop, dropoff))}`);
+  setTimeEl('time-direct', `~${fmtDuration(instantEstimateSecs(pickup, dropoff))}`, true);
 
-async function fetchAndRenderTimes(pickup, stop, dropoff) {
-  const setTime = (id, text, muted = false) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.textContent = text;
-      if (muted) el.classList.add('muted'); else el.classList.remove('muted');
-    }
-  };
-
-  const [r1, r2, rD] = await Promise.all([
-    getDrivingSeconds(pickup, stop),
-    getDrivingSeconds(stop, dropoff),
-    getDrivingSeconds(pickup, dropoff),
-  ]);
-
-  const tag = (r) => r.estimated ? `~${formatDuration(r.seconds)}` : formatDuration(r.seconds);
-  setTime('time-leg1',   tag(r1));
-  setTime('time-leg2',   tag(r2));
-  setTime('time-direct', tag(rD), true);
+  // Then try to update with real OSRM routing in background
+  const [s1, s2, sD] = await Promise.all([fetchOSRM(pickup, stop), fetchOSRM(stop, dropoff), fetchOSRM(pickup, dropoff)]);
+  if (s1 != null) setTimeEl('time-leg1', fmtDuration(s1));
+  if (s2 != null) setTimeEl('time-leg2', fmtDuration(s2));
+  if (sD != null) setTimeEl('time-direct', fmtDuration(sD), true);
 }
 
 // ─── URL builders ─────────────────────────────────────────────────────────────
-function buildNativeUberURL(pickup, dropoff) {
-  const parts = [
-    'action=setPickup',
-    `pickup[latitude]=${pickup.lat.toFixed(6)}`,
-    `pickup[longitude]=${pickup.lng.toFixed(6)}`,
-    `pickup[nickname]=${encodeURIComponent(pickup.short_name)}`,
-    `pickup[formatted_address]=${encodeURIComponent(pickup.short_name)}`,
-    `dropoff[latitude]=${dropoff.lat.toFixed(6)}`,
-    `dropoff[longitude]=${dropoff.lng.toFixed(6)}`,
-    `dropoff[nickname]=${encodeURIComponent(dropoff.short_name)}`,
-    `dropoff[formatted_address]=${encodeURIComponent(dropoff.short_name)}`,
-  ];
-  return `uber://?${parts.join('&')}`;
-}
-
-// Official Uber web deep link (https://m.uber.com/ul/) — same bracket notation
-// as the native uber:// scheme, just served over https so browsers can open it.
 function buildWebUberURL(pickup, dropoff) {
   const parts = [
     'action=setPickup',
@@ -678,135 +474,81 @@ function buildWebUberURL(pickup, dropoff) {
   return `https://m.uber.com/ul/?${parts.join('&')}`;
 }
 
-// Multi-stop: open full Uber web app with pickup + first stop pre-filled.
-// Uber's /ul/ endpoint only supports one dropoff, so we pre-fill the detour
-// stop as the dropoff — the user adds the final leg themselves, or uses the
-// individual Leg buttons below.
-function buildMultiStopWebURL(pickup, stop, dropoff) {
-  const parts = [
-    'action=setPickup',
-    `pickup[latitude]=${pickup.lat.toFixed(6)}`,
-    `pickup[longitude]=${pickup.lng.toFixed(6)}`,
-    `pickup[nickname]=${encodeURIComponent(pickup.short_name)}`,
-    `pickup[formatted_address]=${encodeURIComponent(pickup.short_name)}`,
-    `dropoff[latitude]=${stop.lat.toFixed(6)}`,
-    `dropoff[longitude]=${stop.lng.toFixed(6)}`,
-    `dropoff[nickname]=${encodeURIComponent(stop.short_name)}`,
-    `dropoff[formatted_address]=${encodeURIComponent(stop.short_name)}`,
-  ];
-  return `https://m.uber.com/ul/?${parts.join('&')}`;
-}
-
 function openUber(pickup, dropoff) {
-  // m.uber.com/ul/ is Uber's official web deep link.
-  // On mobile with Uber installed the OS intercepts it as a universal link
-  // and opens the native app. On desktop it opens the Uber web app.
   window.open(buildWebUberURL(pickup, dropoff), '_blank');
+  // Show address toast so user can copy-paste on desktop
+  showToast(pickup.short_name, dropoff.short_name);
 }
 
 // ─── Handlers ─────────────────────────────────────────────────────────────────
 async function handleOpenUber() {
   const originEl = document.getElementById('origin');
   const destEl   = document.getElementById('destination');
-  const origin   = originEl.value.trim();
-  const dest     = destEl.value.trim();
+  const origin   = originEl.value.trim(), dest = destEl.value.trim();
   if (!origin || !dest) { alert('Please enter both an origin and a destination.'); return; }
 
   const btn = document.getElementById('direct-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>';
-
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
   try {
     const [pickup, dropoff] = await Promise.all([geocode(origin, originEl), geocode(dest, destEl)]);
-    await openUber(pickup, dropoff);
+    openUber(pickup, dropoff);
   } catch (err) {
     alert(err.message || 'Something went wrong. Please try again.');
   } finally {
-    btn.disabled = false;
-    btn.textContent = 'Find a Ride';
+    btn.disabled = false; btn.textContent = 'Find a Ride';
   }
 }
 
 async function handleGenerateDetour() {
   const originEl = document.getElementById('detour-origin');
   const destEl   = document.getElementById('detour-dest');
-  const origin   = originEl.value.trim();
-  const dest     = destEl.value.trim();
+  const origin   = originEl.value.trim(), dest = destEl.value.trim();
   if (!origin || !dest) { alert('Please enter both an origin and a destination.'); return; }
 
   const btn = document.getElementById('detour-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
   document.getElementById('detour-result').classList.add('hidden');
   detourResult = null;
 
   try {
     const [pickup, dropoff] = await Promise.all([geocode(origin, originEl), geocode(dest, destEl)]);
     const mid = midpoint(pickup, dropoff);
-    const { lat: stopLat, lng: stopLng } = randomNearbyPoint(mid.lat, mid.lng, 1000, 2000);
-    const stop = await reverseGeocode(stopLat, stopLng);
+    const { lat: sLat, lng: sLng } = randomNearbyPoint(mid.lat, mid.lng);
+    const stop = await reverseGeocode(sLat, sLng);
 
     detourResult = { pickup, stop, dropoff };
-    renderDetourResult();
-    fetchAndRenderTimes(pickup, stop, dropoff); // runs in background, fills in times
+
+    // Render route
+    document.getElementById('route-vis').innerHTML = `
+      ${stopHTML('#4CAF50', 'Origin',      pickup.short_name)}
+      <div class="route-line"></div>
+      ${stopHTML('#FF9800', 'Random Stop', stop.short_name, `${stop.lat.toFixed(5)}, ${stop.lng.toFixed(5)}`)}
+      <div class="route-line"></div>
+      ${stopHTML('#F44336', 'Destination', dropoff.short_name)}`;
+
+    document.getElementById('detour-result').classList.remove('hidden');
+    renderTimes(pickup, stop, dropoff); // starts instantly, updates with OSRM in background
   } catch (err) {
     alert(err.message || 'Something went wrong. Please try again.');
   } finally {
-    btn.disabled = false;
-    btn.textContent = 'Generate Detour';
+    btn.disabled = false; btn.textContent = 'Generate Detour';
   }
 }
 
-function renderDetourResult() {
-  if (!detourResult) return;
-  const { pickup, stop, dropoff } = detourResult;
-
-  document.getElementById('route-vis').innerHTML = `
-    ${stopHTML('#4CAF50', 'Origin',      pickup.short_name)}
-    <div class="route-line"></div>
-    ${stopHTML('#FF9800', 'Random Stop', stop.short_name, `${stop.lat.toFixed(5)}, ${stop.lng.toFixed(5)}`)}
-    <div class="route-line"></div>
-    ${stopHTML('#F44336', 'Destination', dropoff.short_name)}
-  `;
-
-  document.getElementById('debug-box').innerHTML = `
-    <p class="debug-title">DEV · Multi-Stop URL Check</p>
-    <p class="debug-item">✓ pickup &nbsp;&nbsp;&nbsp;${esc(pickup.short_name)}</p>
-    <p class="debug-item">✓ drop[0] &nbsp;${esc(stop.short_name)}</p>
-    <p class="debug-item">✓ drop[1] &nbsp;${esc(dropoff.short_name)}</p>
-  `;
-
-  document.getElementById('detour-result').classList.remove('hidden');
-}
-
 function stopHTML(color, label, name, coords) {
-  return `
-    <div class="stop-row">
-      <div class="stop-dot" style="background:${color}"></div>
-      <div>
-        <p class="stop-label">${esc(label)}</p>
-        <p class="stop-name">${esc(name)}</p>
-        ${coords ? `<p class="stop-coords">${esc(coords)}</p>` : ''}
-      </div>
-    </div>`;
+  return `<div class="stop-row"><div class="stop-dot" style="background:${color}"></div><div><p class="stop-label">${esc(label)}</p><p class="stop-name">${esc(name)}</p>${coords ? `<p class="stop-coords">${esc(coords)}</p>` : ''}</div></div>`;
 }
 
 async function handleOpenFullRoute() {
   if (!detourResult) return;
-  const { pickup, stop, dropoff } = detourResult;
+  const { pickup, stop } = detourResult;
   setLegBtnsDisabled(true);
-  const btn = document.getElementById('full-route-btn');
-  const orig = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner"></span>';
-  btn.disabled = true;
+  const btn = document.getElementById('full-route-btn'), orig = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true;
   try {
-    window.open(buildMultiStopWebURL(pickup, stop, dropoff), '_blank');
-  } catch {
-    alert('Could not open full route.\n\nUse Leg 1 and Leg 2 below.');
+    openUber(pickup, stop);
   } finally {
-    btn.innerHTML = orig;
-    btn.disabled = false;
-    setLegBtnsDisabled(false);
+    btn.innerHTML = orig; btn.disabled = false; setLegBtnsDisabled(false);
   }
 }
 
@@ -814,42 +556,30 @@ async function handleOpenLeg(leg) {
   if (!detourResult) return;
   const { pickup, stop, dropoff } = detourResult;
   const btnId = leg === 1 ? 'leg1-btn' : 'leg2-btn';
-  const btn = document.getElementById(btnId);
-  const orig = btn.innerHTML;
-  btn.innerHTML = '<span class="spinner"></span>';
-  setLegBtnsDisabled(true);
+  const btn = document.getElementById(btnId), orig = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span>'; setLegBtnsDisabled(true);
   try {
-    await openUber(leg === 1 ? pickup : stop, leg === 1 ? stop : dropoff);
+    openUber(leg === 1 ? pickup : stop, leg === 1 ? stop : dropoff);
   } catch (err) {
-    alert(err.message || 'Could not open Uber. Please try again.');
+    alert(err.message || 'Could not open Uber.');
   } finally {
-    btn.innerHTML = orig;
-    setLegBtnsDisabled(false);
+    btn.innerHTML = orig; setLegBtnsDisabled(false);
   }
 }
 
 function setLegBtnsDisabled(val) {
-  ['full-route-btn','leg1-btn','leg2-btn'].forEach(id => {
-    document.getElementById(id).disabled = val;
-  });
+  ['full-route-btn','leg1-btn','leg2-btn'].forEach(id => { document.getElementById(id).disabled = val; });
 }
 
-function esc(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// Enter key to submit
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
-  // If a highlighted autocomplete item exists, let the input handler deal with it
   const anyOpen = [...document.querySelectorAll('.ac-dropdown')].some(d => d.classList.contains('open'));
   if (anyOpen) return;
-  if (document.getElementById('direct-panel').classList.contains('hidden')) {
-    handleGenerateDetour();
-  } else {
-    handleOpenUber();
-  }
+  document.getElementById('direct-panel').classList.contains('hidden') ? handleGenerateDetour() : handleOpenUber();
 });
 </script>
 </body>
