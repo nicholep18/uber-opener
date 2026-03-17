@@ -424,7 +424,6 @@ async function getUberToken() {
         grant_type:    'client_credentials',
         client_id:     UBER_CLIENT_ID,
         client_secret: UBER_CLIENT_SECRET,
-        scope:         'ride_widgets',
       }),
     });
     if (!res.ok) return null;
@@ -476,7 +475,7 @@ function setTimeEl(id, text, muted = false) {
 
 async function fetchOSRM(from, to) {
   const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), 6000);
+  const t = setTimeout(() => ctrl.abort(), 12000);
   try {
     const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${from.lng.toFixed(6)},${from.lat.toFixed(6)};${to.lng.toFixed(6)},${to.lat.toFixed(6)}?overview=false`, { signal: ctrl.signal });
     clearTimeout(t);
