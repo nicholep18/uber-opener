@@ -574,21 +574,50 @@ function randomNearbyPoint(lat, lng, minMeters = 1000, maxMeters = 2000) {
   return { lat: lat + (dLatRad * 180) / Math.PI, lng: lng + (dLngRad * 180) / Math.PI };
 }
 
-// ─── Driving time (OSRM public API) ──────────────────────────────────────────
+// ─── Driving time ─────────────────────────────────────────────────────────────
+
+// Haversine straight-line distance in metres
+function haversineMeters(a, b) {
+  const R = 6371000;
+  const dLat = (b.lat - a.lat) * Math.PI / 180;
+  const dLng = (b.lng - a.lng) * Math.PI / 180;
+  const s = Math.sin(dLat / 2) ** 2 +
+            Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) *
+            Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+}
+
+// Estimate driving seconds from straight-line distance (road factor ~1.35, avg 30 km/h city)
+function estimateSeconds(from, to) {
+  const dist = haversineMeters(from, to) * 1.35; // road factor
+  return dist / (30 * 1000 / 3600);              // 30 km/h → m/s
+}
+
 async function getDrivingSeconds(from, to) {
   const url =
     `https://router.project-osrm.org/route/v1/driving/` +
     `${from.lng.toFixed(6)},${from.lat.toFixed(6)};${to.lng.toFixed(6)},${to.lat.toFixed(6)}` +
     `?overview=false`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`OSRM HTTP ${res.status}`);
-  const data = await res.json();
-  if (data.code !== 'Ok') throw new Error('OSRM no route');
-  return data.routes[0].duration; // seconds
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (data.code !== 'Ok') throw new Error();
+    return { seconds: data.routes[0].duration, estimated: false };
+  } catch {
+    clearTimeout(timeout);
+    return { seconds: estimateSeconds(from, to), estimated: true };
+  }
 }
 
 function formatDuration(seconds) {
   const mins = Math.round(seconds / 60);
+  if (mins < 1) return '< 1 min';
   if (mins < 60) return `${mins} min`;
   const h = Math.floor(mins / 60);
   const m = mins % 60;
@@ -598,23 +627,22 @@ function formatDuration(seconds) {
 async function fetchAndRenderTimes(pickup, stop, dropoff) {
   const setTime = (id, text, muted = false) => {
     const el = document.getElementById(id);
-    if (el) { el.textContent = text; if (muted) el.classList.add('muted'); else el.classList.remove('muted'); }
+    if (el) {
+      el.textContent = text;
+      if (muted) el.classList.add('muted'); else el.classList.remove('muted');
+    }
   };
 
-  try {
-    const [sec1, sec2, secDirect] = await Promise.all([
-      getDrivingSeconds(pickup, stop),
-      getDrivingSeconds(stop, dropoff),
-      getDrivingSeconds(pickup, dropoff),
-    ]);
-    setTime('time-leg1',   formatDuration(sec1));
-    setTime('time-leg2',   formatDuration(sec2));
-    setTime('time-direct', formatDuration(secDirect), true);
-  } catch {
-    setTime('time-leg1',   '—');
-    setTime('time-leg2',   '—');
-    setTime('time-direct', '—', true);
-  }
+  const [r1, r2, rD] = await Promise.all([
+    getDrivingSeconds(pickup, stop),
+    getDrivingSeconds(stop, dropoff),
+    getDrivingSeconds(pickup, dropoff),
+  ]);
+
+  const tag = (r) => r.estimated ? `~${formatDuration(r.seconds)}` : formatDuration(r.seconds);
+  setTime('time-leg1',   tag(r1));
+  setTime('time-leg2',   tag(r2));
+  setTime('time-direct', tag(rD), true);
 }
 
 // ─── URL builders ─────────────────────────────────────────────────────────────
@@ -669,13 +697,11 @@ function buildMultiStopWebURL(pickup, stop, dropoff) {
   return `https://m.uber.com/ul/?${parts.join('&')}`;
 }
 
-async function openUber(pickup, dropoff) {
-  const webURL = buildWebUberURL(pickup, dropoff);
-  // On mobile with Uber installed, uber:// is intercepted by the OS.
-  // On desktop/browser it silently fails, so we always open the web URL.
-  window.location.href = buildNativeUberURL(pickup, dropoff);
-  await new Promise(r => setTimeout(r, 500));
-  window.open(webURL, '_blank');
+function openUber(pickup, dropoff) {
+  // m.uber.com/ul/ is Uber's official web deep link.
+  // On mobile with Uber installed the OS intercepts it as a universal link
+  // and opens the native app. On desktop it opens the Uber web app.
+  window.open(buildWebUberURL(pickup, dropoff), '_blank');
 }
 
 // ─── Handlers ─────────────────────────────────────────────────────────────────
