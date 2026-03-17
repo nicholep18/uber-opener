@@ -409,14 +409,55 @@ function randomNearbyPoint(lat, lng, minM = 1000, maxM = 2000) {
 }
 
 // ─── Time estimates ───────────────────────────────────────────────────────────
-function haversineMeters(a, b) {
-  const R = 6371000, dLat = (b.lat - a.lat) * Math.PI / 180, dLng = (b.lng - a.lng) * Math.PI / 180;
-  const s = Math.sin(dLat/2)**2 + Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1-s));
+const UBER_CLIENT_ID     = 'RCUmEjs02tdWoAgZqhZlAkChyb36gWqH';
+const UBER_CLIENT_SECRET = 'TzHqGMcuakIEQWIf2PHikevrSY9dnwm3';
+
+let _uberToken = null, _uberTokenExpiry = 0;
+
+async function getUberToken() {
+  if (_uberToken && Date.now() < _uberTokenExpiry) return _uberToken;
+  try {
+    const res = await fetch('https://login.uber.com/oauth/v2/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type:    'client_credentials',
+        client_id:     UBER_CLIENT_ID,
+        client_secret: UBER_CLIENT_SECRET,
+        scope:         'ride_widgets',
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    _uberToken = data.access_token;
+    _uberTokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
+    return _uberToken;
+  } catch { return null; }
 }
 
-// Instant estimate: road factor 1.35, average 28 km/h city speed
-function instantEstimateSecs(a, b) { return haversineMeters(a, b) * 1.35 / (28000 / 3600); }
+async function fetchUberDuration(from, to) {
+  const token = await getUberToken();
+  if (!token) return null;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const params = new URLSearchParams({
+      start_latitude:  from.lat.toFixed(6),
+      start_longitude: from.lng.toFixed(6),
+      end_latitude:    to.lat.toFixed(6),
+      end_longitude:   to.lng.toFixed(6),
+    });
+    const res = await fetch(`https://api.uber.com/v1.2/estimates/price?${params}`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+      signal: ctrl.signal,
+    });
+    clearTimeout(t);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const product = data.prices?.find(p => /uberx/i.test(p.display_name)) || data.prices?.[0];
+    return product?.duration ?? null;
+  } catch { clearTimeout(t); return null; }
+}
 
 function fmtDuration(secs) {
   const m = Math.round(secs / 60);
@@ -442,20 +483,29 @@ async function fetchOSRM(from, to) {
     const data = await res.json();
     if (data.code === 'Ok') return data.routes[0].duration;
   } catch { clearTimeout(t); }
-  return null; // null = OSRM failed, caller uses estimate
+  return null;
+}
+
+async function fetchDuration(from, to) {
+  const uber = await fetchUberDuration(from, to);
+  if (uber != null) return uber;
+  return fetchOSRM(from, to); // fallback if Uber API unavailable
 }
 
 async function renderTimes(pickup, stop, dropoff) {
-  // Show instant estimates immediately
-  setTimeEl('time-leg1',   `~${fmtDuration(instantEstimateSecs(pickup, stop))}`);
-  setTimeEl('time-leg2',   `~${fmtDuration(instantEstimateSecs(stop, dropoff))}`);
-  setTimeEl('time-direct', `~${fmtDuration(instantEstimateSecs(pickup, dropoff))}`, true);
+  // Show loading state — no intermediate estimate that changes
+  setTimeEl('time-leg1',   '…', false);
+  setTimeEl('time-leg2',   '…', false);
+  setTimeEl('time-direct', '…', true);
 
-  // Then try to update with real OSRM routing in background
-  const [s1, s2, sD] = await Promise.all([fetchOSRM(pickup, stop), fetchOSRM(stop, dropoff), fetchOSRM(pickup, dropoff)]);
-  if (s1 != null) setTimeEl('time-leg1', fmtDuration(s1));
-  if (s2 != null) setTimeEl('time-leg2', fmtDuration(s2));
-  if (sD != null) setTimeEl('time-direct', fmtDuration(sD), true);
+  const [s1, s2, sD] = await Promise.all([
+    fetchDuration(pickup, stop),
+    fetchDuration(stop, dropoff),
+    fetchDuration(pickup, dropoff),
+  ]);
+  setTimeEl('time-leg1',   s1 != null ? fmtDuration(s1) : '—');
+  setTimeEl('time-leg2',   s2 != null ? fmtDuration(s2) : '—');
+  setTimeEl('time-direct', sD != null ? fmtDuration(sD) : '—', true);
 }
 
 // ─── URL builders ─────────────────────────────────────────────────────────────
