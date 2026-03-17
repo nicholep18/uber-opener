@@ -192,6 +192,35 @@
     .debug-title { font-size: 9px; font-weight: 700; color: #bbb; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 5px; }
     .debug-item { font-size: 11px; color: #999; font-family: monospace; margin-bottom: 2px; }
 
+    /* Time estimates */
+    .time-card {
+      width: 100%;
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+    .time-card-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+    }
+    .time-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 0;
+    }
+    .time-row + .time-row { border-top: 1px solid #eee; }
+    .time-label { font-size: 13px; color: #555; display: flex; align-items: center; gap: 7px; }
+    .time-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .time-value { font-size: 14px; font-weight: 700; color: #111; }
+    .time-value.muted { color: #aaa; font-weight: 500; font-size: 13px; }
+
     /* Full-route button */
     .full-route-btn {
       width: 100%;
@@ -299,6 +328,23 @@
       <p class="detour-title">Your Detour Route</p>
       <div class="route-container" id="route-vis"></div>
       <div class="debug-box" id="debug-box"></div>
+
+      <!-- Ride time estimates -->
+      <div class="time-card" id="time-card">
+        <p class="time-card-title">Estimated Ride Times</p>
+        <div class="time-row">
+          <span class="time-label"><span class="time-dot" style="background:#4CAF50"></span>Leg 1 &nbsp;·&nbsp; Start → Stop</span>
+          <span class="time-value" id="time-leg1"><span class="spinner" style="border-color:rgba(0,0,0,0.15);border-top-color:#aaa;width:13px;height:13px;border-width:2px"></span></span>
+        </div>
+        <div class="time-row">
+          <span class="time-label"><span class="time-dot" style="background:#FF9800"></span>Leg 2 &nbsp;·&nbsp; Stop → End</span>
+          <span class="time-value" id="time-leg2"><span class="spinner" style="border-color:rgba(0,0,0,0.15);border-top-color:#aaa;width:13px;height:13px;border-width:2px"></span></span>
+        </div>
+        <div class="time-row">
+          <span class="time-label"><span class="time-dot" style="background:#9E9E9E"></span>Direct &nbsp;·&nbsp; Start → End</span>
+          <span class="time-value muted" id="time-direct"><span class="spinner" style="border-color:rgba(0,0,0,0.15);border-top-color:#aaa;width:13px;height:13px;border-width:2px"></span></span>
+        </div>
+      </div>
 
       <button class="full-route-btn" id="full-route-btn" onclick="handleOpenFullRoute()">
         <div class="full-route-title-row">
@@ -528,6 +574,49 @@ function randomNearbyPoint(lat, lng, minMeters = 1000, maxMeters = 2000) {
   return { lat: lat + (dLatRad * 180) / Math.PI, lng: lng + (dLngRad * 180) / Math.PI };
 }
 
+// ─── Driving time (OSRM public API) ──────────────────────────────────────────
+async function getDrivingSeconds(from, to) {
+  const url =
+    `https://router.project-osrm.org/route/v1/driving/` +
+    `${from.lng.toFixed(6)},${from.lat.toFixed(6)};${to.lng.toFixed(6)},${to.lat.toFixed(6)}` +
+    `?overview=false`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`OSRM HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.code !== 'Ok') throw new Error('OSRM no route');
+  return data.routes[0].duration; // seconds
+}
+
+function formatDuration(seconds) {
+  const mins = Math.round(seconds / 60);
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
+}
+
+async function fetchAndRenderTimes(pickup, stop, dropoff) {
+  const setTime = (id, text, muted = false) => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = text; if (muted) el.classList.add('muted'); else el.classList.remove('muted'); }
+  };
+
+  try {
+    const [sec1, sec2, secDirect] = await Promise.all([
+      getDrivingSeconds(pickup, stop),
+      getDrivingSeconds(stop, dropoff),
+      getDrivingSeconds(pickup, dropoff),
+    ]);
+    setTime('time-leg1',   formatDuration(sec1));
+    setTime('time-leg2',   formatDuration(sec2));
+    setTime('time-direct', formatDuration(secDirect), true);
+  } catch {
+    setTime('time-leg1',   '—');
+    setTime('time-leg2',   '—');
+    setTime('time-direct', '—', true);
+  }
+}
+
 // ─── URL builders ─────────────────────────────────────────────────────────────
 function buildNativeUberURL(pickup, dropoff) {
   const parts = [
@@ -544,29 +633,49 @@ function buildNativeUberURL(pickup, dropoff) {
   return `uber://?${parts.join('&')}`;
 }
 
+// Official Uber web deep link (https://m.uber.com/ul/) — same bracket notation
+// as the native uber:// scheme, just served over https so browsers can open it.
 function buildWebUberURL(pickup, dropoff) {
-  const pJ = JSON.stringify({ latitude: pickup.lat.toFixed(6),  longitude: pickup.lng.toFixed(6),  addressLine1: pickup.short_name });
-  const dJ = JSON.stringify({ latitude: dropoff.lat.toFixed(6), longitude: dropoff.lng.toFixed(6), addressLine1: dropoff.short_name });
-  return `https://m.uber.com/looking?pickup=${encodeURIComponent(pJ)}&drop%5B0%5D=${encodeURIComponent(dJ)}`;
+  const parts = [
+    'action=setPickup',
+    `pickup[latitude]=${pickup.lat.toFixed(6)}`,
+    `pickup[longitude]=${pickup.lng.toFixed(6)}`,
+    `pickup[nickname]=${encodeURIComponent(pickup.short_name)}`,
+    `pickup[formatted_address]=${encodeURIComponent(pickup.short_name)}`,
+    `dropoff[latitude]=${dropoff.lat.toFixed(6)}`,
+    `dropoff[longitude]=${dropoff.lng.toFixed(6)}`,
+    `dropoff[nickname]=${encodeURIComponent(dropoff.short_name)}`,
+    `dropoff[formatted_address]=${encodeURIComponent(dropoff.short_name)}`,
+  ];
+  return `https://m.uber.com/ul/?${parts.join('&')}`;
 }
 
+// Multi-stop: open full Uber web app with pickup + first stop pre-filled.
+// Uber's /ul/ endpoint only supports one dropoff, so we pre-fill the detour
+// stop as the dropoff — the user adds the final leg themselves, or uses the
+// individual Leg buttons below.
 function buildMultiStopWebURL(pickup, stop, dropoff) {
-  const pJ = JSON.stringify({ latitude: pickup.lat.toFixed(6),  longitude: pickup.lng.toFixed(6),  addressLine1: pickup.short_name });
-  const sJ = JSON.stringify({ latitude: stop.lat.toFixed(6),    longitude: stop.lng.toFixed(6),    addressLine1: stop.short_name });
-  const dJ = JSON.stringify({ latitude: dropoff.lat.toFixed(6), longitude: dropoff.lng.toFixed(6), addressLine1: dropoff.short_name });
-  return `https://m.uber.com/looking?pickup=${encodeURIComponent(pJ)}&drop%5B0%5D=${encodeURIComponent(sJ)}&drop%5B1%5D=${encodeURIComponent(dJ)}`;
+  const parts = [
+    'action=setPickup',
+    `pickup[latitude]=${pickup.lat.toFixed(6)}`,
+    `pickup[longitude]=${pickup.lng.toFixed(6)}`,
+    `pickup[nickname]=${encodeURIComponent(pickup.short_name)}`,
+    `pickup[formatted_address]=${encodeURIComponent(pickup.short_name)}`,
+    `dropoff[latitude]=${stop.lat.toFixed(6)}`,
+    `dropoff[longitude]=${stop.lng.toFixed(6)}`,
+    `dropoff[nickname]=${encodeURIComponent(stop.short_name)}`,
+    `dropoff[formatted_address]=${encodeURIComponent(stop.short_name)}`,
+  ];
+  return `https://m.uber.com/ul/?${parts.join('&')}`;
 }
 
 async function openUber(pickup, dropoff) {
-  const nativeURL = buildNativeUberURL(pickup, dropoff);
-  const webURL    = buildWebUberURL(pickup, dropoff);
-  try {
-    window.location.href = nativeURL;
-    await new Promise(r => setTimeout(r, 600));
-    window.open(webURL, '_blank');
-  } catch {
-    window.open(webURL, '_blank');
-  }
+  const webURL = buildWebUberURL(pickup, dropoff);
+  // On mobile with Uber installed, uber:// is intercepted by the OS.
+  // On desktop/browser it silently fails, so we always open the web URL.
+  window.location.href = buildNativeUberURL(pickup, dropoff);
+  await new Promise(r => setTimeout(r, 500));
+  window.open(webURL, '_blank');
 }
 
 // ─── Handlers ─────────────────────────────────────────────────────────────────
@@ -613,6 +722,7 @@ async function handleGenerateDetour() {
 
     detourResult = { pickup, stop, dropoff };
     renderDetourResult();
+    fetchAndRenderTimes(pickup, stop, dropoff); // runs in background, fills in times
   } catch (err) {
     alert(err.message || 'Something went wrong. Please try again.');
   } finally {
