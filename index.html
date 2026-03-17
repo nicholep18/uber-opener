@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Open Uber</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 48px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 { font-size: 28px; font-weight: 800; color: #000; margin-bottom: 4px; }
+    .subtitle { font-size: 14px; color: #666; margin-bottom: 24px; }
+
+    /* ── Toggle ── */
+    .toggle-row {
+      display: flex;
+      background: #e8e8e8;
+      border-radius: 10px;
+      padding: 3px;
+      margin-bottom: 24px;
+      width: 100%;
+    }
+    .toggle-btn {
+      flex: 1;
+      padding: 8px 0;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      font-weight: 600;
+      color: #888;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+    }
+    .toggle-btn.active {
+      background: #fff;
+      color: #000;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    }
+
+    /* ── Card ── */
+    .card {
+      width: 100%;
+      background: #fff;
+      border-radius: 16px;
+      padding: 0 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    /* ── Field row & autocomplete wrapper ── */
+    .field-wrap { position: relative; }
+
+    .field-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    .divider { height: 1px; background: #f0f0f0; margin-left: 22px; }
+
+    input[type="text"] {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 15px;
+      color: #111;
+      background: transparent;
+      font-family: inherit;
+      min-width: 0;
+    }
+    input[type="text"]::placeholder { color: #aaa; }
+
+    /* ── Autocomplete dropdown ── */
+    .ac-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: -16px;          /* align with card edge */
+      right: -16px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+      z-index: 999;
+      overflow: hidden;
+      display: none;
+    }
+    .ac-dropdown.open { display: block; }
+
+    .ac-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .ac-item:hover,
+    .ac-item.highlighted { background: #f5f5f5; }
+
+    .ac-pin {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #e8e8e8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ac-pin svg { width: 14px; height: 14px; fill: #555; }
+
+    .ac-text { display: flex; flex-direction: column; min-width: 0; }
+    .ac-main {
+      font-size: 14px;
+      font-weight: 600;
+      color: #000;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ac-sub {
+      font-size: 12px;
+      color: #888;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 1px;
+    }
+    .ac-divider { height: 1px; background: #f0f0f0; margin: 0 16px; }
+
+    /* ── Buttons ── */
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 12px;
+      border: none;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      color: #fff;
+      background: #000;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: opacity 0.15s;
+    }
+    .btn:disabled { background: #555; cursor: not-allowed; }
+
+    /* ── Detour hint ── */
+    .detour-hint { font-size: 13px; color: #888; text-align: center; margin-bottom: 16px; line-height: 1.5; }
+
+    /* ── Detour result card ── */
+    .detour-card { padding: 16px; margin-top: 20px; }
+    .detour-title { font-size: 16px; font-weight: 700; color: #000; text-align: center; margin-bottom: 16px; }
+
+    /* Route visualisation */
+    .stop-row { display: flex; align-items: flex-start; }
+    .stop-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 12px; flex-shrink: 0; margin-top: 3px; }
+    .stop-label { font-size: 11px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1px; }
+    .stop-name { font-size: 14px; font-weight: 500; color: #111; }
+    .stop-coords { font-size: 11px; color: #bbb; margin-top: 2px; font-variant-numeric: tabular-nums; font-family: monospace; }
+    .route-line { width: 1px; height: 20px; background: #ddd; margin: 4px 0 4px 4px; }
+    .route-container { margin-bottom: 20px; }
+
+    /* Debug box */
+    .debug-box { width: 100%; background: #f4f4f4; border-radius: 8px; border: 1px solid #e4e4e4; padding: 8px 10px; margin-bottom: 16px; }
+    .debug-title { font-size: 9px; font-weight: 700; color: #bbb; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 5px; }
+    .debug-item { font-size: 11px; color: #999; font-family: monospace; margin-bottom: 2px; }
+
+    /* Full-route button */
+    .full-route-btn {
+      width: 100%;
+      background: #00695C;
+      padding: 16px;
+      border-radius: 12px;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .full-route-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .full-route-title-row { display: flex; align-items: center; gap: 7px; }
+    .full-route-label { font-size: 15px; font-weight: 700; letter-spacing: 0.2px; }
+    .beta-badge { background: rgba(255,255,255,0.22); border-radius: 4px; padding: 2px 5px; font-size: 9px; font-weight: 800; letter-spacing: 0.6px; }
+    .full-route-sub { font-size: 12px; color: rgba(255,255,255,0.75); }
+
+    .multi-stop-note { font-size: 11px; color: #999; text-align: center; line-height: 1.5; margin-bottom: 16px; padding: 0 4px; }
+
+    /* Leg separator */
+    .leg-separator { display: flex; align-items: center; margin-bottom: 12px; gap: 10px; }
+    .leg-separator-line { flex: 1; height: 1px; background: #eee; }
+    .leg-separator-text { font-size: 11px; color: #bbb; font-weight: 500; white-space: nowrap; }
+
+    /* Leg buttons */
+    .leg-btn { width: 100%; padding: 14px 16px; border-radius: 12px; border: none; color: #fff; cursor: pointer; margin-bottom: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    .leg-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .leg-btn-1 { background: #000; }
+    .leg-btn-2 { background: #C84B00; }
+    .leg-label { font-size: 13px; font-weight: 700; text-align: center; letter-spacing: 0.2px; }
+    .leg-desc { font-size: 12px; color: rgba(255,255,255,0.75); text-align: center; }
+
+    /* Re-roll */
+    .regen-btn { padding: 10px; background: none; border: none; color: #555; font-size: 14px; font-weight: 500; cursor: pointer; width: 100%; text-align: center; margin-top: 2px; }
+    .regen-btn:hover { color: #000; }
+
+    /* Spinner */
+    .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .hidden { display: none !important; }
+    #direct-panel, #detour-panel { width: 100%; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Open Uber</h1>
+  <p class="subtitle">Enter addresses to pre-fill your ride</p>
+
+  <div class="toggle-row">
+    <button class="toggle-btn active" id="btn-direct" onclick="setMode('direct')">Direct Ride</button>
+    <button class="toggle-btn"        id="btn-detour" onclick="setMode('detour')">Detour Mode</button>
+  </div>
+
+  <!-- ── Direct Ride panel ── -->
+  <div id="direct-panel">
+    <div class="card">
+      <div class="field-wrap">
+        <div class="field-row">
+          <div class="dot" style="background:#4CAF50"></div>
+          <input id="origin" type="text" placeholder="From — e.g. Times Square, New York" autocomplete="off" />
+        </div>
+        <div class="ac-dropdown" id="ac-origin"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="field-wrap">
+        <div class="field-row">
+          <div class="dot" style="background:#F44336"></div>
+          <input id="destination" type="text" placeholder="To — e.g. JFK Airport, New York" autocomplete="off" />
+        </div>
+        <div class="ac-dropdown" id="ac-destination"></div>
+      </div>
+    </div>
+    <button class="btn" id="direct-btn" onclick="handleOpenUber()">Find a Ride</button>
+  </div>
+
+  <!-- ── Detour Mode panel ── -->
+  <div id="detour-panel" class="hidden">
+    <p class="detour-hint">We'll pick a surprise stop 1–2 km from the midpoint of your journey.</p>
+    <div class="card">
+      <div class="field-wrap">
+        <div class="field-row">
+          <div class="dot" style="background:#4CAF50"></div>
+          <input id="detour-origin" type="text" placeholder="From — e.g. Times Square, New York" autocomplete="off" />
+        </div>
+        <div class="ac-dropdown" id="ac-detour-origin"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="field-wrap">
+        <div class="field-row">
+          <div class="dot" style="background:#F44336"></div>
+          <input id="detour-dest" type="text" placeholder="To — e.g. JFK Airport, New York" autocomplete="off" />
+        </div>
+        <div class="ac-dropdown" id="ac-detour-dest"></div>
+      </div>
+    </div>
+    <button class="btn" id="detour-btn" onclick="handleGenerateDetour()">Generate Detour</button>
+
+    <div id="detour-result" class="card detour-card hidden">
+      <p class="detour-title">Your Detour Route</p>
+      <div class="route-container" id="route-vis"></div>
+      <div class="debug-box" id="debug-box"></div>
+
+      <button class="full-route-btn" id="full-route-btn" onclick="handleOpenFullRoute()">
+        <div class="full-route-title-row">
+          <span class="full-route-label">Open Full Route in Uber</span>
+          <span class="beta-badge">BETA</span>
+        </div>
+        <span class="full-route-sub">Origin → Random Stop → Destination</span>
+      </button>
+
+      <p class="multi-stop-note">
+        ⚠ Uber may not always prefill multi-stop routes depending on app version / device.
+        If the detour stop is missing, use Leg 1 and Leg 2 below.
+      </p>
+
+      <div class="leg-separator">
+        <div class="leg-separator-line"></div>
+        <span class="leg-separator-text">or use individual legs</span>
+        <div class="leg-separator-line"></div>
+      </div>
+
+      <button class="leg-btn leg-btn-1" id="leg1-btn" onclick="handleOpenLeg(1)">
+        <span class="leg-label">Leg 1 · Open Uber</span>
+        <span class="leg-desc">Origin → Random Stop</span>
+      </button>
+      <button class="leg-btn leg-btn-2" id="leg2-btn" onclick="handleOpenLeg(2)">
+        <span class="leg-label">Leg 2 · Open Uber</span>
+        <span class="leg-desc">Random Stop → Destination</span>
+      </button>
+      <button class="regen-btn" onclick="handleGenerateDetour()">↻  New Random Stop</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+let detourResult = null;
+
+// ─── Mode toggle ──────────────────────────────────────────────────────────────
+function setMode(mode) {
+  document.getElementById('direct-panel').classList.toggle('hidden', mode !== 'direct');
+  document.getElementById('detour-panel').classList.toggle('hidden', mode !== 'detour');
+  document.getElementById('btn-direct').classList.toggle('active', mode === 'direct');
+  document.getElementById('btn-detour').classList.toggle('active', mode === 'detour');
+}
+
+// ─── Autocomplete ─────────────────────────────────────────────────────────────
+const PIN_SVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+</svg>`;
+
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+}
+
+async function fetchSuggestions(query) {
+  if (query.length < 2) return [];
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1`;
+  try {
+    const res = await fetch(url, { headers: { 'User-Agent': 'UberOpenerApp/1.0' } });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch { return []; }
+}
+
+function formatSuggestion(item) {
+  // Main: first 1-2 parts (place name / street)
+  const parts = item.display_name.split(',');
+  const main = parts.slice(0, 2).join(',').trim();
+  // Sub: remainder capped at 40 chars
+  const sub  = parts.slice(2).join(',').trim();
+  return { main, sub };
+}
+
+function attachAutocomplete(inputId, dropdownId) {
+  const input    = document.getElementById(inputId);
+  const dropdown = document.getElementById(dropdownId);
+  let highlighted = -1;
+  let currentItems = [];
+
+  function closeDropdown() {
+    dropdown.classList.remove('open');
+    dropdown.innerHTML = '';
+    highlighted = -1;
+    currentItems = [];
+  }
+
+  function selectItem(item) {
+    const short = item.display_name.split(',').slice(0, 2).join(',').trim();
+    input.value = short;
+    // Store geocoded result on the input element for instant use later
+    input._geocoded = {
+      lat: parseFloat(item.lat),
+      lng: parseFloat(item.lon),
+      display_name: item.display_name,
+      short_name: short,
+    };
+    closeDropdown();
+  }
+
+  function renderDropdown(items) {
+    currentItems = items;
+    highlighted = -1;
+    dropdown.innerHTML = '';
+
+    if (!items.length) { closeDropdown(); return; }
+
+    items.forEach((item, i) => {
+      const { main, sub } = formatSuggestion(item);
+
+      if (i > 0) {
+        const divEl = document.createElement('div');
+        divEl.className = 'ac-divider';
+        dropdown.appendChild(divEl);
+      }
+
+      const row = document.createElement('div');
+      row.className = 'ac-item';
+      row.innerHTML = `
+        <div class="ac-pin">${PIN_SVG}</div>
+        <div class="ac-text">
+          <span class="ac-main">${esc(main)}</span>
+          ${sub ? `<span class="ac-sub">${esc(sub)}</span>` : ''}
+        </div>`;
+
+      // mousedown instead of click to fire before blur
+      row.addEventListener('mousedown', e => { e.preventDefault(); selectItem(item); });
+      dropdown.appendChild(row);
+    });
+
+    dropdown.classList.add('open');
+  }
+
+  const debouncedSearch = debounce(async (query) => {
+    const items = await fetchSuggestions(query);
+    // Only render if this input is still focused
+    if (document.activeElement === input) renderDropdown(items);
+  }, 300);
+
+  input.addEventListener('input', () => {
+    input._geocoded = null; // clear cached result when user edits
+    const q = input.value.trim();
+    if (q.length < 2) { closeDropdown(); return; }
+    debouncedSearch(q);
+  });
+
+  input.addEventListener('blur', () => setTimeout(closeDropdown, 150));
+
+  input.addEventListener('keydown', e => {
+    if (!dropdown.classList.contains('open')) return;
+    const rows = dropdown.querySelectorAll('.ac-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      highlighted = Math.min(highlighted + 1, rows.length - 1);
+      rows.forEach((r, i) => r.classList.toggle('highlighted', i === highlighted));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      highlighted = Math.max(highlighted - 1, 0);
+      rows.forEach((r, i) => r.classList.toggle('highlighted', i === highlighted));
+    } else if (e.key === 'Enter' && highlighted >= 0) {
+      e.stopPropagation();
+      selectItem(currentItems[highlighted]);
+    } else if (e.key === 'Escape') {
+      closeDropdown();
+    }
+  });
+}
+
+// Attach to all four inputs
+attachAutocomplete('origin',       'ac-origin');
+attachAutocomplete('destination',  'ac-destination');
+attachAutocomplete('detour-origin','ac-detour-origin');
+attachAutocomplete('detour-dest',  'ac-detour-dest');
+
+// Close all dropdowns on outside click
+document.addEventListener('mousedown', e => {
+  document.querySelectorAll('.ac-dropdown').forEach(d => {
+    if (!d.parentElement.contains(e.target)) {
+      d.classList.remove('open');
+      d.innerHTML = '';
+    }
+  });
+});
+
+// ─── Geocoding (Nominatim) ────────────────────────────────────────────────────
+async function geocode(address, inputEl) {
+  // Use cached result from autocomplete selection if available
+  if (inputEl && inputEl._geocoded && inputEl._geocoded.short_name === address) {
+    return inputEl._geocoded;
+  }
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1&addressdetails=1`;
+  const res = await fetch(url, { headers: { 'User-Agent': 'UberOpenerApp/1.0' } });
+  if (!res.ok) throw new Error(`Geocoding failed (HTTP ${res.status})`);
+  const data = await res.json();
+  if (!data || data.length === 0)
+    throw new Error(`No location found for "${address}".\nTry being more specific.`);
+  const short_name = data[0].display_name.split(',').slice(0, 2).join(',').trim();
+  return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), display_name: data[0].display_name, short_name };
+}
+
+async function reverseGeocode(lat, lng) {
+  const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat.toFixed(6)}&lon=${lng.toFixed(6)}&format=json`;
+  try {
+    const res = await fetch(url, { headers: { 'User-Agent': 'UberOpenerApp/1.0' } });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (data && data.display_name) {
+      const short_name = data.display_name.split(',').slice(0, 2).join(',').trim();
+      return { lat, lng, display_name: data.display_name, short_name };
+    }
+  } catch {}
+  const coordStr = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  return { lat, lng, display_name: coordStr, short_name: coordStr };
+}
+
+// ─── Random nearby point ──────────────────────────────────────────────────────
+function midpoint(a, b) {
+  return { lat: (a.lat + b.lat) / 2, lng: (a.lng + b.lng) / 2 };
+}
+
+function randomNearbyPoint(lat, lng, minMeters = 1000, maxMeters = 2000) {
+  const angleRad = Math.random() * 2 * Math.PI;
+  const distance = minMeters + Math.random() * (maxMeters - minMeters);
+  const R = 6371000;
+  const dLatRad = (distance * Math.cos(angleRad)) / R;
+  const dLngRad = (distance * Math.sin(angleRad)) / (R * Math.cos((lat * Math.PI) / 180));
+  return { lat: lat + (dLatRad * 180) / Math.PI, lng: lng + (dLngRad * 180) / Math.PI };
+}
+
+// ─── URL builders ─────────────────────────────────────────────────────────────
+function buildNativeUberURL(pickup, dropoff) {
+  const parts = [
+    'action=setPickup',
+    `pickup[latitude]=${pickup.lat.toFixed(6)}`,
+    `pickup[longitude]=${pickup.lng.toFixed(6)}`,
+    `pickup[nickname]=${encodeURIComponent(pickup.short_name)}`,
+    `pickup[formatted_address]=${encodeURIComponent(pickup.short_name)}`,
+    `dropoff[latitude]=${dropoff.lat.toFixed(6)}`,
+    `dropoff[longitude]=${dropoff.lng.toFixed(6)}`,
+    `dropoff[nickname]=${encodeURIComponent(dropoff.short_name)}`,
+    `dropoff[formatted_address]=${encodeURIComponent(dropoff.short_name)}`,
+  ];
+  return `uber://?${parts.join('&')}`;
+}
+
+function buildWebUberURL(pickup, dropoff) {
+  const pJ = JSON.stringify({ latitude: pickup.lat.toFixed(6),  longitude: pickup.lng.toFixed(6),  addressLine1: pickup.short_name });
+  const dJ = JSON.stringify({ latitude: dropoff.lat.toFixed(6), longitude: dropoff.lng.toFixed(6), addressLine1: dropoff.short_name });
+  return `https://m.uber.com/looking?pickup=${encodeURIComponent(pJ)}&drop%5B0%5D=${encodeURIComponent(dJ)}`;
+}
+
+function buildMultiStopWebURL(pickup, stop, dropoff) {
+  const pJ = JSON.stringify({ latitude: pickup.lat.toFixed(6),  longitude: pickup.lng.toFixed(6),  addressLine1: pickup.short_name });
+  const sJ = JSON.stringify({ latitude: stop.lat.toFixed(6),    longitude: stop.lng.toFixed(6),    addressLine1: stop.short_name });
+  const dJ = JSON.stringify({ latitude: dropoff.lat.toFixed(6), longitude: dropoff.lng.toFixed(6), addressLine1: dropoff.short_name });
+  return `https://m.uber.com/looking?pickup=${encodeURIComponent(pJ)}&drop%5B0%5D=${encodeURIComponent(sJ)}&drop%5B1%5D=${encodeURIComponent(dJ)}`;
+}
+
+async function openUber(pickup, dropoff) {
+  const nativeURL = buildNativeUberURL(pickup, dropoff);
+  const webURL    = buildWebUberURL(pickup, dropoff);
+  try {
+    window.location.href = nativeURL;
+    await new Promise(r => setTimeout(r, 600));
+    window.open(webURL, '_blank');
+  } catch {
+    window.open(webURL, '_blank');
+  }
+}
+
+// ─── Handlers ─────────────────────────────────────────────────────────────────
+async function handleOpenUber() {
+  const originEl = document.getElementById('origin');
+  const destEl   = document.getElementById('destination');
+  const origin   = originEl.value.trim();
+  const dest     = destEl.value.trim();
+  if (!origin || !dest) { alert('Please enter both an origin and a destination.'); return; }
+
+  const btn = document.getElementById('direct-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+
+  try {
+    const [pickup, dropoff] = await Promise.all([geocode(origin, originEl), geocode(dest, destEl)]);
+    await openUber(pickup, dropoff);
+  } catch (err) {
+    alert(err.message || 'Something went wrong. Please try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Find a Ride';
+  }
+}
+
+async function handleGenerateDetour() {
+  const originEl = document.getElementById('detour-origin');
+  const destEl   = document.getElementById('detour-dest');
+  const origin   = originEl.value.trim();
+  const dest     = destEl.value.trim();
+  if (!origin || !dest) { alert('Please enter both an origin and a destination.'); return; }
+
+  const btn = document.getElementById('detour-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  document.getElementById('detour-result').classList.add('hidden');
+  detourResult = null;
+
+  try {
+    const [pickup, dropoff] = await Promise.all([geocode(origin, originEl), geocode(dest, destEl)]);
+    const mid = midpoint(pickup, dropoff);
+    const { lat: stopLat, lng: stopLng } = randomNearbyPoint(mid.lat, mid.lng, 1000, 2000);
+    const stop = await reverseGeocode(stopLat, stopLng);
+
+    detourResult = { pickup, stop, dropoff };
+    renderDetourResult();
+  } catch (err) {
+    alert(err.message || 'Something went wrong. Please try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generate Detour';
+  }
+}
+
+function renderDetourResult() {
+  if (!detourResult) return;
+  const { pickup, stop, dropoff } = detourResult;
+
+  document.getElementById('route-vis').innerHTML = `
+    ${stopHTML('#4CAF50', 'Origin',      pickup.short_name)}
+    <div class="route-line"></div>
+    ${stopHTML('#FF9800', 'Random Stop', stop.short_name, `${stop.lat.toFixed(5)}, ${stop.lng.toFixed(5)}`)}
+    <div class="route-line"></div>
+    ${stopHTML('#F44336', 'Destination', dropoff.short_name)}
+  `;
+
+  document.getElementById('debug-box').innerHTML = `
+    <p class="debug-title">DEV · Multi-Stop URL Check</p>
+    <p class="debug-item">✓ pickup &nbsp;&nbsp;&nbsp;${esc(pickup.short_name)}</p>
+    <p class="debug-item">✓ drop[0] &nbsp;${esc(stop.short_name)}</p>
+    <p class="debug-item">✓ drop[1] &nbsp;${esc(dropoff.short_name)}</p>
+  `;
+
+  document.getElementById('detour-result').classList.remove('hidden');
+}
+
+function stopHTML(color, label, name, coords) {
+  return `
+    <div class="stop-row">
+      <div class="stop-dot" style="background:${color}"></div>
+      <div>
+        <p class="stop-label">${esc(label)}</p>
+        <p class="stop-name">${esc(name)}</p>
+        ${coords ? `<p class="stop-coords">${esc(coords)}</p>` : ''}
+      </div>
+    </div>`;
+}
+
+async function handleOpenFullRoute() {
+  if (!detourResult) return;
+  const { pickup, stop, dropoff } = detourResult;
+  setLegBtnsDisabled(true);
+  const btn = document.getElementById('full-route-btn');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+  try {
+    window.open(buildMultiStopWebURL(pickup, stop, dropoff), '_blank');
+  } catch {
+    alert('Could not open full route.\n\nUse Leg 1 and Leg 2 below.');
+  } finally {
+    btn.innerHTML = orig;
+    btn.disabled = false;
+    setLegBtnsDisabled(false);
+  }
+}
+
+async function handleOpenLeg(leg) {
+  if (!detourResult) return;
+  const { pickup, stop, dropoff } = detourResult;
+  const btnId = leg === 1 ? 'leg1-btn' : 'leg2-btn';
+  const btn = document.getElementById(btnId);
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span>';
+  setLegBtnsDisabled(true);
+  try {
+    await openUber(leg === 1 ? pickup : stop, leg === 1 ? stop : dropoff);
+  } catch (err) {
+    alert(err.message || 'Could not open Uber. Please try again.');
+  } finally {
+    btn.innerHTML = orig;
+    setLegBtnsDisabled(false);
+  }
+}
+
+function setLegBtnsDisabled(val) {
+  ['full-route-btn','leg1-btn','leg2-btn'].forEach(id => {
+    document.getElementById(id).disabled = val;
+  });
+}
+
+function esc(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Enter key to submit
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  // If a highlighted autocomplete item exists, let the input handler deal with it
+  const anyOpen = [...document.querySelectorAll('.ac-dropdown')].some(d => d.classList.contains('open'));
+  if (anyOpen) return;
+  if (document.getElementById('direct-panel').classList.contains('hidden')) {
+    handleGenerateDetour();
+  } else {
+    handleOpenUber();
+  }
+});
+</script>
+</body>
+</html>
