@@ -459,24 +459,38 @@ async function renderTimes(pickup, stop, dropoff) {
 }
 
 // ─── URL builders ─────────────────────────────────────────────────────────────
-function buildWebUberURL(pickup, dropoff) {
-  const parts = [
-    'action=setPickup',
-    `pickup[latitude]=${pickup.lat.toFixed(6)}`,
-    `pickup[longitude]=${pickup.lng.toFixed(6)}`,
-    `pickup[nickname]=${encodeURIComponent(pickup.short_name)}`,
-    `pickup[formatted_address]=${encodeURIComponent(pickup.short_name)}`,
-    `dropoff[latitude]=${dropoff.lat.toFixed(6)}`,
-    `dropoff[longitude]=${dropoff.lng.toFixed(6)}`,
-    `dropoff[nickname]=${encodeURIComponent(dropoff.short_name)}`,
-    `dropoff[formatted_address]=${encodeURIComponent(dropoff.short_name)}`,
-  ];
-  return `https://m.uber.com/ul/?${parts.join('&')}`;
+// latitude/longitude must be numbers (not strings) in the JSON — Uber rejects strings.
+function locationJSON(p) {
+  return JSON.stringify({
+    latitude:     p.lat,           // number
+    longitude:    p.lng,           // number
+    addressLine1: p.short_name,
+    addressLine2: p.display_name,
+  });
 }
 
-function openUber(pickup, dropoff) {
-  window.open(buildWebUberURL(pickup, dropoff), '_blank');
-  // Show address toast so user can copy-paste on desktop
+function buildWebUberURL(pickup, dropoff) {
+  const params = new URLSearchParams({ pickup: locationJSON(pickup) });
+  params.append('drop[0]', locationJSON(dropoff));
+  return `https://m.uber.com/looking?${params.toString()}`;
+}
+
+function buildMultiStopWebURL(pickup, stop, dropoff) {
+  const params = new URLSearchParams({ pickup: locationJSON(pickup) });
+  params.append('drop[0]', locationJSON(stop));
+  params.append('drop[1]', locationJSON(dropoff));
+  return `https://m.uber.com/looking?${params.toString()}`;
+}
+
+// Opens a blank window immediately (sync, before any await) so popup blockers
+// don't interfere, then navigates it to the Uber URL once we have coordinates.
+function openUber(uberWin, pickup, dropoff) {
+  const url = buildWebUberURL(pickup, dropoff);
+  if (uberWin && !uberWin.closed) {
+    uberWin.location.href = url;
+  } else {
+    window.open(url, '_blank');
+  }
   showToast(pickup.short_name, dropoff.short_name);
 }
 
@@ -487,12 +501,16 @@ async function handleOpenUber() {
   const origin   = originEl.value.trim(), dest = destEl.value.trim();
   if (!origin || !dest) { alert('Please enter both an origin and a destination.'); return; }
 
+  // Open blank window NOW (synchronous, click context) so popup blocker won't fire
+  const uberWin = window.open('', '_blank');
+
   const btn = document.getElementById('direct-btn');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
   try {
     const [pickup, dropoff] = await Promise.all([geocode(origin, originEl), geocode(dest, destEl)]);
-    openUber(pickup, dropoff);
+    openUber(uberWin, pickup, dropoff);
   } catch (err) {
+    if (uberWin && !uberWin.closed) uberWin.close();
     alert(err.message || 'Something went wrong. Please try again.');
   } finally {
     btn.disabled = false; btn.textContent = 'Find a Ride';
@@ -541,12 +559,16 @@ function stopHTML(color, label, name, coords) {
 
 async function handleOpenFullRoute() {
   if (!detourResult) return;
-  const { pickup, stop } = detourResult;
+  const { pickup, stop, dropoff } = detourResult;
+  const uberWin = window.open('', '_blank');
   setLegBtnsDisabled(true);
   const btn = document.getElementById('full-route-btn'), orig = btn.innerHTML;
   btn.innerHTML = '<span class="spinner"></span>'; btn.disabled = true;
   try {
-    openUber(pickup, stop);
+    const url = buildMultiStopWebURL(pickup, stop, dropoff);
+    if (uberWin && !uberWin.closed) uberWin.location.href = url;
+    else window.open(url, '_blank');
+    showToast(pickup.short_name, dropoff.short_name);
   } finally {
     btn.innerHTML = orig; btn.disabled = false; setLegBtnsDisabled(false);
   }
@@ -555,12 +577,14 @@ async function handleOpenFullRoute() {
 async function handleOpenLeg(leg) {
   if (!detourResult) return;
   const { pickup, stop, dropoff } = detourResult;
+  const uberWin = window.open('', '_blank');
   const btnId = leg === 1 ? 'leg1-btn' : 'leg2-btn';
   const btn = document.getElementById(btnId), orig = btn.innerHTML;
   btn.innerHTML = '<span class="spinner"></span>'; setLegBtnsDisabled(true);
   try {
-    openUber(leg === 1 ? pickup : stop, leg === 1 ? stop : dropoff);
+    openUber(uberWin, leg === 1 ? pickup : stop, leg === 1 ? stop : dropoff);
   } catch (err) {
+    if (uberWin && !uberWin.closed) uberWin.close();
     alert(err.message || 'Could not open Uber.');
   } finally {
     btn.innerHTML = orig; setLegBtnsDisabled(false);
