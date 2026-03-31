@@ -409,52 +409,26 @@ function randomNearbyPoint(lat, lng, minM = 1000, maxM = 2000) {
 }
 
 // ─── Time estimates ───────────────────────────────────────────────────────────
-const UBER_CLIENT_ID     = 'RCUmEjs02tdWoAgZqhZlAkChyb36gWqH';
-const UBER_CLIENT_SECRET = 'TzHqGMcuakIEQWIf2PHikevrSY9dnwm3';
+const GOOGLE_MAPS_API_KEY = 'AIzaSyAT73nYBHUfYez0qDYaXQ0g4US1BhgfIwM';
 
-let _uberToken = null, _uberTokenExpiry = 0;
-
-async function getUberToken() {
-  if (_uberToken && Date.now() < _uberTokenExpiry) return _uberToken;
-  try {
-    const res = await fetch('https://login.uber.com/oauth/v2/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type:    'client_credentials',
-        client_id:     UBER_CLIENT_ID,
-        client_secret: UBER_CLIENT_SECRET,
-      }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    _uberToken = data.access_token;
-    _uberTokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
-    return _uberToken;
-  } catch { return null; }
-}
-
-async function fetchUberDuration(from, to) {
-  const token = await getUberToken();
-  if (!token) return null;
+async function fetchGoogleMapsDuration(from, to) {
+  if (!GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY') return null;
   const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), 8000);
+  const t = setTimeout(() => ctrl.abort(), 10000);
   try {
-    const params = new URLSearchParams({
-      start_latitude:  from.lat.toFixed(6),
-      start_longitude: from.lng.toFixed(6),
-      end_latitude:    to.lat.toFixed(6),
-      end_longitude:   to.lng.toFixed(6),
-    });
-    const res = await fetch(`https://api.uber.com/v1.2/estimates/price?${params}`, {
-      headers: { 'Authorization': `Bearer ${token}` },
-      signal: ctrl.signal,
-    });
+    const origins      = `${from.lat.toFixed(6)},${from.lng.toFixed(6)}`;
+    const destinations = `${to.lat.toFixed(6)},${to.lng.toFixed(6)}`;
+    const url = `https://maps.googleapis.com/maps/api/distancematrix/json` +
+      `?origins=${encodeURIComponent(origins)}` +
+      `&destinations=${encodeURIComponent(destinations)}` +
+      `&mode=driving&key=${GOOGLE_MAPS_API_KEY}`;
+    const res = await fetch(url, { signal: ctrl.signal });
     clearTimeout(t);
     if (!res.ok) return null;
     const data = await res.json();
-    const product = data.prices?.find(p => /uberx/i.test(p.display_name)) || data.prices?.[0];
-    return product?.duration ?? null;
+    const element = data.rows?.[0]?.elements?.[0];
+    if (element?.status === 'OK') return element.duration.value; // seconds
+    return null;
   } catch { clearTimeout(t); return null; }
 }
 
@@ -486,9 +460,9 @@ async function fetchOSRM(from, to) {
 }
 
 async function fetchDuration(from, to) {
-  const uber = await fetchUberDuration(from, to);
-  if (uber != null) return uber;
-  return fetchOSRM(from, to); // fallback if Uber API unavailable
+  const gmaps = await fetchGoogleMapsDuration(from, to);
+  if (gmaps != null) return gmaps;
+  return fetchOSRM(from, to); // fallback if Google Maps API key not set
 }
 
 async function renderTimes(pickup, stop, dropoff) {
